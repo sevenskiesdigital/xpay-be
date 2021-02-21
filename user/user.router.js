@@ -1,7 +1,9 @@
 const router = require("express").Router();
-const { generateOtp, verifyOtp } = require("./user.controller");
+const { generateOtp, verifyOtp, setPin } = require("./user.controller");
+const { checkToken } = require("../auth/token_validation");
 
-router.post("/otp/generate", generateOtp);
-router.post("/otp/verify", verifyOtp);
+router.post("/generateOtp", generateOtp);
+router.post("/verifyOtp", verifyOtp);
+router.post("/setPin", checkToken, setPin);
 
 module.exports = router; 
