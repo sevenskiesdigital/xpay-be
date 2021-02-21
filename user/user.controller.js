@@ -33,7 +33,7 @@ module.exports = {
                     })
                 }
                 results.pin = undefined;
-                const jsontoken = sign({result: results}, "qwe1234", {
+                const jsontoken = sign({result: results}, process.env.JWT_KEY, {
                     expiresIn: "1h"
                 });
                 return res.status(200).json({
@@ -48,6 +48,7 @@ module.exports = {
         const body = req.body;
         const salt = genSaltSync(10);
         body.pin = hashSync(body.pin, salt);
+        body.id = req.user.id;
         updateUser(body, (err, results) => {
             if(err){
                 console.log(err);
