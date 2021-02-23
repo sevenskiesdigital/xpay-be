@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const userRouter = require("./user/user.router")
+const paymentRouter = require("./payment/payment.router")
 
 app.use(express.json());
 
@@ -13,6 +14,8 @@ app.get("/api", (req, res)=>{
 })
 
 app.use("/user", userRouter);
+
+app.use("/payment", paymentRouter);
 
 app.listen(process.env.APP_PORT, ()=>{
     console.log("Server up and running on PORT: ", process.env.APP_PORT);
