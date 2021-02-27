@@ -4,7 +4,9 @@ const app = express();
 const userRouter = require("./user/user.router")
 const paymentRouter = require("./payment/payment.router")
 const orderRouter = require("./order/order.router")
+var cors = require('cors')
 
+app.use(cors())
 app.use(express.json());
 
 app.get("/api", (req, res)=>{
