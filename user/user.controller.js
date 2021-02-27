@@ -34,7 +34,7 @@ module.exports = {
                 }
                 results.pin = undefined;
                 const jsontoken = sign({result: results}, process.env.JWT_KEY, {
-                    expiresIn: "1h"
+                    expiresIn: process.env.JWT_EXPIRED
                 });
                 return res.status(200).json({
                     success: 1,

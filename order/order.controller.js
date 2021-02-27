@@ -1,4 +1,5 @@
 const { createOrder, getOrderBySellerId, getOrderByCode } = require("./order.services");
+const { sign } = require("jsonwebtoken");
 
 function randomString(length, chars) {
     var mask = '';
@@ -22,7 +23,7 @@ module.exports = {
             "amount": body.amount,
             "payment_code": randomString(5, '#aA'),
             "expired_buyer_time": body.expired_buyer_time,
-            "status": 'open',
+            "status": 'waiting_payment',
             "created_by": req.user.id,
             "updated_by": req.user.id
         }
@@ -78,9 +79,14 @@ module.exports = {
                     message: "Record not found"
                 })
             }
+            console.log(process.env);
+            const jsontoken = sign({result: results}, process.env.JWT_KEY, {
+                expiresIn: process.env.JWT_EXPIRED
+            });
             return res.status(200).json({
                 success: 1,
-                data: results
+                data: results,
+                token: jsontoken
             })
         });
     }

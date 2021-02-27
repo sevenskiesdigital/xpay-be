@@ -5,33 +5,21 @@ let snap = new midtransClient.Snap({
         isProduction : false,
         serverKey : 'SB-Mid-server-qug5i26hvYpNpdZDXxk735ko'
     });
- 
-let parameter = {
-    "transaction_details": {
-        "order_id": "YOUR-ORDERID-123456",
-        "gross_amount": 10000
-    },
-    "credit_card":{
-        "secure" : true
-    },
-    "customer_details": {
-        "first_name": "budi",
-        "last_name": "pratama",
-        "email": "budi.pra@example.com",
-        "phone": "08111222333"
-    }
-};
- 
-
 
 module.exports = {
     snap: (data, callBack) => {
+        let parameter = {
+            "transaction_details": {
+                "order_id": data.payment_code,
+                "gross_amount": data.amount
+            },
+            "credit_card":{
+                "secure" : true
+            }
+        };
         snap.createTransaction(parameter)
         .then((transaction)=>{
-            // transaction token
-            let transactionToken = transaction.token;
-            console.log('transactionToken:',transactionToken);
-            return callBack(null, transactionToken)
+            return callBack(null, transaction)
         }).catch((error) => {
             return callBack(error);
         })
