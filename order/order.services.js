@@ -34,5 +34,16 @@ module.exports = {
                 return callBack(null, results)
             }
         );
+    },
+    getOrderByCode: (code, callBack) => {
+        pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` WHERE payment_code = ?',
+            [code],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results)
+            }
+        );
     }
 }

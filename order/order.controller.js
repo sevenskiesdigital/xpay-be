@@ -1,4 +1,4 @@
-const { createOrder, getOrderBySellerId } = require("./order.services");
+const { createOrder, getOrderBySellerId, getOrderByCode } = require("./order.services");
 
 function randomString(length, chars) {
     var mask = '';
@@ -43,6 +43,28 @@ module.exports = {
     getOrderBySellerId: (req, res) => {
         const id = req.user.id;
         getOrderBySellerId(id, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            if(!results){
+                return res.status(200).json({
+                    success: 0,
+                    message: "Record not found"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                data: results
+            })
+        });
+    },
+    getOrderByCode: (req, res) => {
+        const code = req.query.code;
+        getOrderByCode(code, (err, results) => {
             if(err){
                 console.log(err);
                 return res.status(500).json({
