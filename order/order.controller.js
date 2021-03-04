@@ -79,7 +79,6 @@ module.exports = {
                     message: "Record not found"
                 })
             }
-            console.log(process.env);
             const jsontoken = sign({result: results}, process.env.JWT_KEY, {
                 expiresIn: process.env.JWT_EXPIRED
             });
