@@ -1,5 +1,14 @@
 const { createOrder, getOrderBySellerId, getOrderByCode } = require("./order.services");
+const { getActivePaymentByCode } = require("../payment/payment.services");
 const { sign } = require("jsonwebtoken");
+const midtransClient = require('midtrans-client');
+
+// Create Snap API instance
+let snap = new midtransClient.Snap({
+        // Set to true if you want Production Environment (accept real transaction).
+        isProduction : false,
+        serverKey : 'SB-Mid-server-qug5i26hvYpNpdZDXxk735ko'
+    });
 
 function randomString(length, chars) {
     var mask = '';
@@ -79,13 +88,22 @@ module.exports = {
                     message: "Record not found"
                 })
             }
-            const jsontoken = sign({result: results}, process.env.JWT_KEY, {
-                expiresIn: process.env.JWT_EXPIRED
-            });
-            return res.status(200).json({
-                success: 1,
-                data: results,
-                token: jsontoken
+            snap.transaction.status(code)
+            .then((response)=>{
+                results.payment = response;
+                const jsontoken = sign({result: results}, process.env.JWT_KEY, {
+                    expiresIn: process.env.JWT_EXPIRED
+                });
+                return res.status(200).json({
+                    success: 1,
+                    data: results,
+                    token: jsontoken
+                })
+            }).catch((error) => {
+                return res.status(200).json({
+                    success: 0,
+                    error: error.ApiResponse
+                })
             })
         });
     }

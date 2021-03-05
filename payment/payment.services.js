@@ -56,6 +56,17 @@ module.exports = {
             }
         );
     },
+    getActivePaymentByCode: (code, callBack) => {
+        pool.query('SELECT `id`, `code`, `token`, `redirect_url`, `status`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `payment` WHERE code = ? AND `is_active` = 1',
+            [code],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results[0])
+            }
+        );
+    },
     updatePaymentByCode: (data, callBack) => {
         pool.query(
             'update payment set is_active=?, status=? where code=?',
