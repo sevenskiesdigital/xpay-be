@@ -1,5 +1,4 @@
-const { createOrder, getOrderBySellerId, getOrderByCode } = require("./order.services");
-const { getActivePaymentByCode } = require("../payment/payment.services");
+const { createOrder, getOrderBySellerId, getOrderByCode, uploadImage, shipOrder } = require("./order.services");
 const { sign } = require("jsonwebtoken");
 const midtransClient = require('midtrans-client');
 
@@ -47,6 +46,49 @@ module.exports = {
             return res.status(200).json({
                 success: 1,
                 message: "Successfully insert order"
+            })
+        });
+    },
+    uploadImage: (req, res) => {
+        const body = req.body;
+        var order = {
+            "base64image": body.base64image,
+            "order_id": body.order_id
+        }
+        uploadImage(order, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Upload image error"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                message: "Successfully upload image",
+                data: results
+            })
+        });
+    },
+    shipOrder: (req, res) => {
+        const body = req.body;
+        var order = {
+            "order_id": body.order_id,
+            "status": 'on_shipping',
+            "updated_by": req.user.id,
+            "seller_id": req.user.id
+        }
+        shipOrder(order, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                message: "Successfully update order"
             })
         });
     },

@@ -1,14 +1,43 @@
 const pool = require("../config/database");
-const midtransClient = require('midtrans-client');
-// Create Snap API instance
-let iris = new midtransClient.Iris({
-        // Set to true if you want Production Environment (accept real transaction).
-        isProduction : false,
-        serverKey : 'SB-Mid-server-qug5i26hvYpNpdZDXxk735ko'
-    });
-
+const bodyParser = require('body-parser');
+const fs = require('fs');
 
 module.exports = {
+    uploadImage: (data, callBack) => {
+        try {     
+            // to declare some path to store your converted image
+            const path = './images/'+Date.now()+'.jpg'
+     
+            const imgdata = data.base64image;
+     
+            // to convert base64 format into random filename
+            const base64Data = imgdata.replace(/^data:([A-Za-z-+/]+);base64,/, '');
+            
+            fs.writeFileSync(path, base64Data,  {encoding: 'base64'});
+     
+            return callBack(null, path)
+     
+        } catch (error) {
+            return callBack(error);
+        }
+    },
+    shipOrder: (data, callBack) => {
+        pool.query(
+            'UPDATE `order` set status=?, updated_by=? where id=? AND seller_id=?',
+            [
+                data.status,
+                data.updated_by,
+                data.order_id,
+                data.seller_id
+            ],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results[0])
+            }
+        );
+    },
     createOrder: (data, callBack) => {
         pool.query(
             'INSERT INTO `order`(`seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `status`, `created_by`, `updated_by`) values(?,?,?,?,?,?,?,?,?,?)',

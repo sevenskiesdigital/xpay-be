@@ -50,3 +50,6 @@ Thumbs.db
 
 # google share folder files
 **/desktop.ini
+
+# images
+images/
