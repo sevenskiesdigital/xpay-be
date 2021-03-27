@@ -4,6 +4,7 @@ const app = express();
 const userRouter = require("./user/user.router")
 const paymentRouter = require("./payment/payment.router")
 const orderRouter = require("./order/order.router")
+const payoutRouter = require("./payout/payout.router")
 var cors = require('cors')
 
 app.use(cors())
@@ -19,6 +20,7 @@ app.get("/api", (req, res)=>{
 app.use("/user", userRouter);
 app.use("/payment", paymentRouter);
 app.use("/order", orderRouter);
+app.use("/payout", payoutRouter);
 
 app.listen(process.env.APP_PORT, ()=>{
     console.log("Server up and running on PORT: ", process.env.APP_PORT);
