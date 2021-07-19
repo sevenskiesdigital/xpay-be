@@ -32,6 +32,7 @@ module.exports = {
                         message: "Database connection error"
                     })
                 }
+                const pin = results.pin;
                 results.pin = undefined;
                 const jsontoken = sign({result: results}, process.env.JWT_KEY, {
                     expiresIn: process.env.JWT_EXPIRED
@@ -39,7 +40,8 @@ module.exports = {
                 return res.status(200).json({
                     success: 1,
                     message: "Successfully verify OTP",
-                    token: jsontoken
+                    token: jsontoken,
+                    pin: pin?1:0
                 })
             });
         });
