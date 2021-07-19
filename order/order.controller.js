@@ -23,13 +23,14 @@ function randomString(length, chars) {
 module.exports = {
     createOrder: (req, res) => {
         const body = req.body;
+        const code = randomString(5, '#aA');
         var order = {
             "seller_id": req.user.id,
             "buyer_id": body.buyer_id,
             "product_name": body.product_name,
             "note": body.note,
             "amount": body.amount,
-            "payment_code": randomString(5, '#aA'),
+            "payment_code": code,
             "expired_buyer_time": body.expired_buyer_time,
             "status": 'waiting_payment',
             "created_by": req.user.id,
@@ -42,11 +43,32 @@ module.exports = {
                     success: 0,
                     message: "Database connection error"
                 })
-            }
-            return res.status(200).json({
+            }            
+            
+            getOrderByCode(code, (err, results) => {
+                if(err){
+                    console.log(err);
+                    return res.status(500).json({
+                        success: 0,
+                        message: "Database connection error"
+                    })
+                }
+                if(!results){
+                    return res.status(200).json({
+                        success: 0,
+                        message: "Record not found"
+                    })
+                }
+                return res.status(200).json({
+                    success: 1,
+                    message: "Successfully insert order",
+                    data: results
+                })
+            });
+            /*return res.status(200).json({
                 success: 1,
                 message: "Successfully insert order"
-            })
+            })*/
         });
     },
     uploadImage: (req, res) => {
