@@ -48,5 +48,36 @@ module.exports = {
                 return callBack(null, results[0])
             }
         );
-    }
+    },
+    generateOtp: (data, callBack) => {
+        pool.query(
+            'insert into otp(email, otp, expires_in) values(?, ?, ?)',
+            [
+                data.email,
+                data.otp,
+                data.expires_in
+            ],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results[0])
+            }
+        );
+    },
+    verifyOtp: (data, callBack) => {
+        pool.query('select id from otp where email = ? and otp = ? and expires_in >= ?',
+        [
+            data.email,
+            data.otp,
+            data.expires_in
+        ],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results)
+            }
+        );
+    },
 }
