@@ -44,7 +44,7 @@ module.exports = {
                 return res.status(500).json({
                     success: 0,
                     message: "Failed verify OTP"
-                })
+                });
             }
             createUser(body, (err, results) => {
                 if(err){
