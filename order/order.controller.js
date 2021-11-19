@@ -164,9 +164,17 @@ module.exports = {
                     token: jsontoken
                 })
             }).catch((error) => {
-                return res.status(200).json({
+                /*return res.status(200).json({
                     success: 0,
                     error: error.ApiResponse
+                })*/
+                const jsontoken = sign({result: results}, process.env.JWT_KEY, {
+                    expiresIn: process.env.JWT_EXPIRED
+                });
+                return res.status(200).json({
+                    success: 1,
+                    data: results,
+                    token: jsontoken
                 })
             })
         });

@@ -12,7 +12,7 @@ module.exports = {
         
         // Find the length of string
         var len = string.length;
-        for (let i = 0; i < 6; i++ ) {
+        for (let i = 0; i < 4; i++ ) {
             OTP += string[Math.floor(Math.random() * len)];
         }        
         body.otp = OTP;
