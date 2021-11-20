@@ -1,4 +1,4 @@
-const { createOrder, getOrderBySellerId, getOrderByCode, uploadImage, shipOrder } = require("./order.services");
+const { createOrder, getOrderBySellerId, getOrderByCode, uploadImage, shipOrder, paymentReceived, finishOrder } = require("./order.services");
 const { sign } = require("jsonwebtoken");
 const midtransClient = require('midtrans-client');
 
@@ -92,6 +92,48 @@ module.exports = {
             })
         });
     },
+    finishOrder: (req, res) => {
+        const buyer_order = req.user;
+        var order = {
+            "order_id": buyer_order.id,
+            "status": 'finished',
+            "updated_by": buyer_order.buyer_id
+        }
+        finishOrder(order, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                message: "Successfully update order"
+            })
+        });
+    },
+    paymentReceived: (req, res) => {
+        const body = req.body;
+        var order = {
+            "order_id": body.order_id,
+            "status": 'waiting_shipping',
+            "updated_by": req.user.id
+        }
+        paymentReceived(order, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                message: "Successfully update order"
+            })
+        });
+    },
     shipOrder: (req, res) => {
         const body = req.body;
         var order = {
@@ -155,6 +197,20 @@ module.exports = {
             snap.transaction.status(code)
             .then((response)=>{
                 results.payment = response;
+                if(response.transaction_status == "capture" || response.transaction_status == "settlement"){
+                    if(results.status == "waiting_payment"){
+                        results.status = "waiting_shipping";
+                        var order = {
+                            "order_id": results.id,
+                            "status": 'waiting_shipping',
+                            "updated_by": results.buyer_id
+                        }
+                        console.log(order);
+                        paymentReceived(order, (err, results) => {
+                            //
+                        });
+                    }
+                }
                 const jsontoken = sign({result: results}, process.env.JWT_KEY, {
                     expiresIn: process.env.JWT_EXPIRED
                 });
@@ -164,10 +220,7 @@ module.exports = {
                     token: jsontoken
                 })
             }).catch((error) => {
-                /*return res.status(200).json({
-                    success: 0,
-                    error: error.ApiResponse
-                })*/
+                results.payment = error.ApiResponse;
                 const jsontoken = sign({result: results}, process.env.JWT_KEY, {
                     expiresIn: process.env.JWT_EXPIRED
                 });

@@ -38,6 +38,38 @@ module.exports = {
             }
         );
     },
+    finishOrder: (data, callBack) => {
+        pool.query(
+            'UPDATE `order` set status=?, updated_by=? where id=?',
+            [
+                data.status,
+                data.updated_by,
+                data.order_id
+            ],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results[0])
+            }
+        );
+    },
+    paymentReceived: (data, callBack) => {
+        pool.query(
+            'UPDATE `order` set status=?, updated_by=? where id=?',
+            [
+                data.status,
+                data.updated_by,
+                data.order_id
+            ],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results[0])
+            }
+        );
+    },
     createOrder: (data, callBack) => {
         pool.query(
             'INSERT INTO `order`(`seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `status`, `created_by`, `updated_by`) values(?,?,?,?,?,?,?,?,?,?)',
