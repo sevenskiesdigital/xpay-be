@@ -207,7 +207,6 @@ module.exports = {
                         }
                         console.log(order);
                         paymentReceived(order, (err, results) => {
-                            //
                         });
                     }
                 }
