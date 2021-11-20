@@ -22,6 +22,6 @@ app.use("/payment", paymentRouter);
 app.use("/order", orderRouter);
 app.use("/payout", payoutRouter);
 
-app.listen(process.env.APP_PORT, ()=>{
-    console.log("Server up and running on PORT: ", process.env.APP_PORT);
+app.listen(process.env.PORT || process.env.APP_PORT, ()=>{
+    console.log("Server up and running on PORT: ", process.env.PORT || process.env.APP_PORT);
 })
