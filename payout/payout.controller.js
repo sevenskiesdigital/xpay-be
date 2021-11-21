@@ -13,8 +13,6 @@ module.exports = {
     payoutBySellerId: (req, res) => {
         const id = req.user.id;
         const body = req.body;
-        console.log(req.user);
-        console.log(body);
         getOrderBySellerId(id, (err, results) => {
             if(err){
                 console.log(err);
@@ -66,8 +64,6 @@ module.exports = {
     payoutByOrderId: (req, res) => {
         const id = req.user.id;
         const body = req.body;
-        console.log(req.user);
-        console.log(body);
         getOrderBySellerId(id, (err, results) => {
             if(err){
                 console.log(err);

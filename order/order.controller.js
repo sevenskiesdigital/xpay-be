@@ -158,7 +158,8 @@ module.exports = {
     },
     getOrderBySellerId: (req, res) => {
         const id = req.user.id;
-        getOrderBySellerId(id, (err, results) => {
+        const status = req.query.status?req.query.status:"";
+        getOrderBySellerId(id, status, (err, results) => {
             if(err){
                 console.log(err);
                 return res.status(500).json({
