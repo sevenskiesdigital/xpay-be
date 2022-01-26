@@ -13,7 +13,8 @@ module.exports = {
     payoutBySellerId: (req, res) => {
         const id = req.user.id;
         const body = req.body;
-        getOrderBySellerId(id, (err, results) => {
+        getOrderBySellerId(id, "finished", (err, results) => {
+            console.log("cek2");
             if(err){
                 console.log(err);
                 return res.status(500).json({
@@ -21,13 +22,23 @@ module.exports = {
                     message: "Database connection error"
                 })
             }
-            if(!results){
+            if(!results || results.length==0){
                 return res.status(200).json({
                     success: 0,
                     message: "Record not found"
                 })
-            }            
-            payout(body, (err, results) => {
+            }      
+            const amount = results.map(order => order.amount).reduce((prev, next) => prev + next);
+            var data_payout = {
+                "beneficiary_name": body.beneficiary_name,
+                "beneficiary_account": body.beneficiary_account,
+                "beneficiary_bank": body.beneficiary_bank,
+                "beneficiary_email": req.user.email,
+                "amount": amount,
+                "notes": body.notes,
+                "created_by": id
+              }      
+            payout(data_payout, (err, results) => {
                 if(err){
                     console.log(err.ApiResponse);
                     return res.status(500).json({
@@ -35,15 +46,6 @@ module.exports = {
                         message: err.ApiResponse
                     })
                 }
-                var payout = {
-                    "beneficiary_name": body.beneficiary_name,
-                    "beneficiary_account": body.beneficiary_account,
-                    "beneficiary_bank": body.beneficiary_bank,
-                    "beneficiary_email": req.user.email,
-                    "amount": body.amount,
-                    "notes": body.notes,
-                    "created_by": id
-                  }
                 createPayout(payment, (err, results2) => {
                     if(err){
                         console.log(err);

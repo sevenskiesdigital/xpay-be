@@ -10,7 +10,7 @@ let iris = new midtransClient.Iris({
 
 module.exports = {
     payout: (data, callBack) => {
-        let parameter = {
+        /*let parameter = {
             "payouts": [
                 {
                   "beneficiary_name": "Jon Snow",
@@ -21,8 +21,8 @@ module.exports = {
                   "notes": "Payout April 17"
                 }
               ]
-        };
-        iris.createPayouts(parameter)
+        };*/
+        iris.createPayouts(data)
         .then((transaction)=>{
             return callBack(null, transaction)
         }).catch((error) => {

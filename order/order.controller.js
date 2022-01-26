@@ -1,4 +1,4 @@
-const { createOrder, getOrderBySellerId, getOrderByCode, uploadImage, shipOrder, paymentReceived, finishOrder } = require("./order.services");
+const { createOrder, getOrderBySellerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder } = require("./order.services");
 const { sign } = require("jsonwebtoken");
 const midtransClient = require('midtrans-client');
 
@@ -94,6 +94,12 @@ module.exports = {
     },
     finishOrder: (req, res) => {
         const buyer_order = req.user;
+        if(buyer_order.status != "on_shipping"){
+            return res.status(500).json({
+                success: 0,
+                message: "Order status is "+buyer_order.status
+            })
+        }
         var order = {
             "order_id": buyer_order.id,
             "status": 'finished',
