@@ -36,7 +36,7 @@ module.exports = {
             "created_by": req.user.id,
             "updated_by": req.user.id
         }
-        createOrder(order, (err, results) => {
+        createOrder(order, (err,results) => {
             if(err){
                 console.log(err);
                 return res.status(500).json({
