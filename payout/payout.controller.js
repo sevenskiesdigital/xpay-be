@@ -14,7 +14,6 @@ module.exports = {
         const id = req.user.id;
         const body = req.body;
         getOrderBySellerId(id, "finished", (err, results) => {
-            console.log("cek2");
             if(err){
                 console.log(err);
                 return res.status(500).json({

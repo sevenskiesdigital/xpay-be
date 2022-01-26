@@ -212,7 +212,6 @@ module.exports = {
                             "status": 'waiting_shipping',
                             "updated_by": results.buyer_id
                         }
-                        console.log(order);
                         paymentReceived(order, (err, results) => {
                         });
                     }
