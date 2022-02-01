@@ -97,5 +97,33 @@ module.exports = {
                 message: "Update successfully"
             })
         });
+    },
+    verifyPin: (req, res) => {
+        const body = req.body;
+        
+        getUserByUserEmail(body.email, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            const pin = results.pin;
+            if(compareSync(body.pin, pin)){
+                return res.status(200).json({
+                    success: 1,
+                    message: "Successfully verify PIN",
+                    pin: pin?1:0
+                })
+            } else {
+                return res.status(200).json({
+                    success: 1,
+                    message: "Failed verify PIN",
+                    pin: pin?1:0
+                })
+            }
+            
+        });        
     }
 }
