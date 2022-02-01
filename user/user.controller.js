@@ -118,7 +118,7 @@ module.exports = {
                 })
             } else {
                 return res.status(200).json({
-                    success: 1,
+                    success: 0,
                     message: "Failed verify PIN",
                     pin: pin?1:0
                 })
