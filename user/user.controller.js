@@ -1,4 +1,4 @@
-const { generateOtp, verifyOtp, getUserByUserEmail, createUser, updateUser } = require("./user.services");
+const { generateOtp, verifyOtp, getUserByUserEmail, createUser, updateUser, verifyFace, setFace } = require("./user.services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 
@@ -124,6 +124,42 @@ module.exports = {
                 })
             }
             
+        });        
+    },
+    setFace: (req, res) => {
+        const body = req.body;
+        
+        setFace(body, (err, results) => {
+            if(err){
+                return res.status(200).json({
+                    success: 0,
+                    message: "Failed set face"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                message: "Successfully set face",
+                data: results
+            })
+            
+        });        
+    },
+    verifyFace: (req, res) => {
+        const body = req.body;
+        
+        verifyFace(body, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(200).json({
+                    success: 0,
+                    message: "Failed verify face"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                message: "Successfully verify face",
+                data: results
+            })
         });        
     }
 }

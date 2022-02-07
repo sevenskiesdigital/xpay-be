@@ -1,4 +1,5 @@
 const pool = require("../config/database");
+const request = require("request");
 
 module.exports = {
     createUser: (data, callBack) => {
@@ -80,4 +81,72 @@ module.exports = {
             }
         );
     },
+    setFace: (data, callBack) => {
+        let params = {
+            'returnFaceId': 'true',
+            'returnFaceLandmarks': 'false',
+            'returnFaceAttributes': 'age,gender'
+        }
+        
+        let options = {
+            uri : process.env.AZURE_URI_BASE + "face/v1.0/detect",
+            qs: params,
+            body : Buffer.from(data.face, "base64"),
+            headers : {
+                'Content-Type': 'application/octet-stream',
+                'Ocp-Apim-Subscription-Key': process.env.AZURE_SUBSCRIPTION_KEY
+            }
+        }
+        request.post(options, (error, response, body) => {
+            if(error){
+                return callBack(error)
+            }
+            if(JSON.parse(body).length > 0){
+                let faceId = JSON.parse(body)[0].faceId;
+                options = {
+                    uri : process.env.AZURE_URI_BASE + "face/v1.0/largepersongroups/"+
+                        process.env.AZURE_PERSON_GROUP+"/persons/"+data.email+"/persistedfaces",
+                    body : JSON.stringify({
+                        'persistedFaceId': faceId
+                    }),
+                    headers : {
+                        'Content-Type': 'application/json; charset=UTF-8',
+                        'Ocp-Apim-Subscription-Key': process.env.AZURE_SUBSCRIPTION_KEY
+                    }
+                }
+                request.post(options, (error, response, body) => {
+                    if(error){
+                        return callBack(error)
+                    }
+                    let jsonResponse = JSON.stringify(JSON.parse(body), null, '');
+                    return callBack(null, jsonResponse)
+                })
+            } else {
+                return callBack(true)}
+        })
+    },
+    verifyFace: (data, callBack) => {
+        const params = {
+            'returnFaceId': 'true',
+            'returnFaceLandmarks': 'false',
+            'returnFaceAttributes': 'age,gender'
+        }
+        
+        const options = {
+            uri : process.env.AZURE_URI_BASE + "face/v1.0/detect",
+            qs: params,
+            body : Buffer.from(data.face, "base64"),
+            headers : {
+                'Content-Type': 'application/octet-stream',
+                'Ocp-Apim-Subscription-Key': process.env.AZURE_SUBSCRIPTION_KEY
+            }
+        }
+        request.post(options, (error, response, body) => {
+            if(error){
+                return callBack(error)
+            }
+            let jsonResponse = JSON.stringify(JSON.parse(body), null, '');
+            return callBack(null, jsonResponse)
+        })
+    }
 }
