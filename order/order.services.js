@@ -93,6 +93,29 @@ module.exports = {
             }
         );
     },
+    getOrderByBuyerId: (id, status, callBack) => {
+        if(status==""){
+            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` WHERE buyer_id = ?',
+                [id],
+                (error, results, fields) => {
+                    if(error){
+                        return callBack(error)
+                    }
+                    return callBack(null, results)
+                }
+            );
+        }else{
+            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` WHERE buyer_id = ? AND status = ?',
+                [id, status],
+                (error, results, fields) => {
+                    if(error){
+                        return callBack(error)
+                    }
+                    return callBack(null, results)
+                }
+            );
+        }
+    },
     getOrderBySellerId: (id, status, callBack) => {
         if(status==""){
             pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` WHERE seller_id = ?',

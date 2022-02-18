@@ -1,4 +1,4 @@
-const { createOrder, getOrderBySellerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder } = require("./order.services");
+const { createOrder, getOrderBySellerId, getOrderByBuyerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder } = require("./order.services");
 const { sign } = require("jsonwebtoken");
 const midtransClient = require('midtrans-client');
 
@@ -166,6 +166,29 @@ module.exports = {
         const id = req.user.id;
         const status = req.query.status?req.query.status:"";
         getOrderBySellerId(id, status, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            if(!results){
+                return res.status(200).json({
+                    success: 0,
+                    message: "Record not found"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                data: results
+            })
+        });
+    },
+    getOrderByBuyerId: (req, res) => {
+        const id = req.user.id;
+        const status = req.query.status?req.query.status:"";
+        getOrderByBuyerId(id, status, (err, results) => {
             if(err){
                 console.log(err);
                 return res.status(500).json({

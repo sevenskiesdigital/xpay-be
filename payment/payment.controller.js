@@ -13,7 +13,7 @@ function randomString(length, chars) {
 
 module.exports = {
     snap: (req, res) => {
-        const body = req.user;
+        const body = req.body;
         var data = {
             "code": body.payment_code,
             "is_active": 0
@@ -40,8 +40,8 @@ module.exports = {
                     "token": results.token,
                     "redirect_url": results.redirect_url,
                     "is_active": 1,
-                    "created_by": body.buyer_id,
-                    "updated_by": body.buyer_id
+                    "created_by": req.user.id,
+                    "updated_by": req.user.id
                 }
                 createPayment(payment, (err, results2) => {
                     if(err){
