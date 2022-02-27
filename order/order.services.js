@@ -34,7 +34,7 @@ module.exports = {
                 if(error){
                     return callBack(error)
                 }
-                return callBack(null, results[0])
+                return callBack(null, results)
             }
         );
     },
@@ -50,7 +50,26 @@ module.exports = {
                 if(error){
                     return callBack(error)
                 }
-                return callBack(null, results[0])
+                console.log(results);
+                return callBack(null, results)
+            }
+        );
+    },
+    statusOrder: (data, callBack) => {
+        pool.query(
+            'UPDATE `order` set status=?, updated_by=? where status=? and (UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(created_at) >= ?)',
+            [
+                data.previous_order_status,
+                data.updated_by,
+                data.next_order_status,
+                data.limit_time
+            ],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                console.log(results);
+                return callBack(null, results)
             }
         );
     },
@@ -66,7 +85,7 @@ module.exports = {
                 if(error){
                     return callBack(error)
                 }
-                return callBack(null, results[0])
+                return callBack(null, results)
             }
         );
     },
@@ -89,7 +108,7 @@ module.exports = {
                 if(error){
                     return callBack(error)
                 }
-                return callBack(null, results[0])
+                return callBack(null, results)
             }
         );
     },

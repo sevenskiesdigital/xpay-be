@@ -1,4 +1,4 @@
-const { createOrder, getOrderBySellerId, getOrderByBuyerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder } = require("./order.services");
+const { createOrder, getOrderBySellerId, getOrderByBuyerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder, statusOrder } = require("./order.services");
 const { sign } = require("jsonwebtoken");
 const midtransClient = require('midtrans-client');
 
@@ -92,20 +92,10 @@ module.exports = {
             })
         });
     },
-    finishOrder: (req, res) => {
-        const buyer_order = req.user;
-        if(buyer_order.status != "on_shipping"){
-            return res.status(500).json({
-                success: 0,
-                message: "Order status is "+buyer_order.status
-            })
-        }
-        var order = {
-            "order_id": buyer_order.id,
-            "status": 'finished',
-            "updated_by": buyer_order.buyer_id
-        }
-        finishOrder(order, (err, results) => {
+    statusOrder: (req, res) => {
+        const body = req.body;
+        body.updated_by = 'SCHEDULER'
+        statusOrder(body, (err, results) => {
             if(err){
                 console.log(err);
                 return res.status(500).json({
@@ -115,8 +105,51 @@ module.exports = {
             }
             return res.status(200).json({
                 success: 1,
-                message: "Successfully update order"
+                message: "Successfully update order",
+                data: results
             })
+        });
+    },
+    finishOrder: (req, res) => {
+        const body = req.body;        
+        getOrderById(body.order_id, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            if(results.buyer_id != req.user.id){
+                return res.status(500).json({
+                    success: 0,
+                    message: "Unauthorized access"
+                })
+            }
+            if(results.status != "on_shipping"){
+                return res.status(500).json({
+                    success: 0,
+                    message: "Order status is "+results.status
+                })
+            }
+            var order = {
+                "order_id": body.order_id,
+                "status": 'finished',
+                "updated_by": req.user.id
+            }
+            finishOrder(order, (err, results) => {
+                if(err){
+                    console.log(err);
+                    return res.status(500).json({
+                        success: 0,
+                        message: "Database connection error"
+                    })
+                }
+                return res.status(200).json({
+                    success: 1,
+                    message: "Successfully update order"
+                })
+            });
         });
     },
     paymentReceived: (req, res) => {
@@ -142,13 +175,7 @@ module.exports = {
     },
     shipOrder: (req, res) => {
         const body = req.body;
-        var order = {
-            "order_id": body.order_id,
-            "status": 'on_shipping',
-            "updated_by": req.user.id,
-            "seller_id": req.user.id
-        }
-        shipOrder(order, (err, results) => {
+        getOrderById(body.order_id, (err, results) => {
             if(err){
                 console.log(err);
                 return res.status(500).json({
@@ -156,10 +183,37 @@ module.exports = {
                     message: "Database connection error"
                 })
             }
-            return res.status(200).json({
-                success: 1,
-                message: "Successfully update order"
-            })
+            if(results.seller_id != req.user.id){
+                return res.status(500).json({
+                    success: 0,
+                    message: "Unauthorized access"
+                })
+            }
+            if(results.status != "payment_received"){
+                return res.status(500).json({
+                    success: 0,
+                    message: "Order status is "+results.status
+                })
+            }
+            var order = {
+                "order_id": body.order_id,
+                "status": 'on_shipping',
+                "updated_by": req.user.id,
+                "seller_id": req.user.id
+            }
+            shipOrder(order, (err, results) => {
+                if(err){
+                    console.log(err);
+                    return res.status(500).json({
+                        success: 0,
+                        message: "Database connection error"
+                    })
+                }
+                return res.status(200).json({
+                    success: 1,
+                    message: "Successfully update order"
+                })
+            });
         });
     },
     getOrderBySellerId: (req, res) => {
