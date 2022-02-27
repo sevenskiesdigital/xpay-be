@@ -1,5 +1,6 @@
 const pool = require("../config/database");
 const request = require("request");
+const nodemailer = require('nodemailer');
 
 module.exports = {
     createUser: (data, callBack) => {
@@ -49,6 +50,30 @@ module.exports = {
                 return callBack(null, results[0])
             }
         );
+    },
+    sendMail: (data, callBack) => {
+        const mailData = {from: 'youremail@gmail.com',  // sender address
+            to: data.email,   // list of receivers
+            subject: 'Email OTP',
+            text: 'Please do not share to anyone!',
+            html: '<b>Hey there! </b><br> Your OTP is'+data.otp+'<br/>'
+        };
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            auth: {
+              user: 'sevenskies.digital@gmail.com',
+              pass: 'KiGedeUtam4',
+            },
+          });
+        // transporter.verify().then(console.log).catch(console.error);
+        transporter.sendMail(mailData, function(err, info) {
+            if(err){
+                return callBack(err)
+            } else {
+                return callBack(null, info)
+            }
+        })
     },
     generateOtp: (data, callBack) => {
         pool.query(

@@ -1,4 +1,4 @@
-const { generateOtp, verifyOtp, getUserByUserEmail, createUser, updateUser, verifyFace, setFace } = require("./user.services");
+const { generateOtp, verifyOtp, getUserByUserEmail, createUser, updateUser, verifyFace, setFace, sendMail } = require("./user.services");
 const { genSaltSync, hashSync, compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 
@@ -26,11 +26,20 @@ module.exports = {
                     message: "Database connection error"
                 })
             }
-            return res.status(200).json({
-                success: 1,
-                message: "Successfully generate OTP",
-                otp: OTP
-            })
+            sendMail(body, (err, results) => {
+                if(err){
+                    console.log(err);
+                    return res.status(500).json({
+                        success: 0,
+                        message: "Send mail error"
+                    })
+                }
+                return res.status(200).json({
+                    success: 1,
+                    message: "Successfully generate OTP",
+                    otp: OTP
+                })
+            });
         });
 
     },
