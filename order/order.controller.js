@@ -1,4 +1,4 @@
-const { createOrder, getOrderBySellerId, getOrderByBuyerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder, statusOrder } = require("./order.services");
+const { createOrder, getOrderBySellerId, getOrderByBuyerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder, statusOrder, createOrderHistory, getOrderHistoryByOrderId } = require("./order.services");
 const { sign } = require("jsonwebtoken");
 const midtransClient = require('midtrans-client');
 
@@ -59,11 +59,27 @@ module.exports = {
                         message: "Record not found"
                     })
                 }
-                return res.status(200).json({
-                    success: 1,
-                    message: "Successfully insert order",
-                    data: results
-                })
+                var order_history = {
+                    "order_id": results.id,
+                    "previous_status": '',
+                    "current_status": results.status,
+                    "note": '',
+                    "created_by": req.user.id
+                }
+                createOrderHistory(order_history, (err, results) => {
+                    if(err){
+                        console.log(err);
+                        return res.status(500).json({
+                            success: 0,
+                            message: "Database connection error"
+                        })
+                    }
+                    return res.status(200).json({
+                        success: 1,
+                        message: "Successfully insert order",
+                        data: results
+                    })
+                });
             });
             /*return res.status(200).json({
                 success: 1,
@@ -147,7 +163,8 @@ module.exports = {
                 }
                 return res.status(200).json({
                     success: 1,
-                    message: "Successfully update order"
+                    message: "Successfully update order",
+                    data: results
                 })
             });
         });
@@ -169,7 +186,8 @@ module.exports = {
             }
             return res.status(200).json({
                 success: 1,
-                message: "Successfully update order"
+                message: "Successfully update order",
+                data: results
             })
         });
     },
@@ -189,7 +207,7 @@ module.exports = {
                     message: "Unauthorized access"
                 })
             }
-            if(results.status != "payment_received"){
+            if(results.status != "payment_received" && results.status != "waiting_shipping"){
                 return res.status(500).json({
                     success: 0,
                     message: "Order status is "+results.status
@@ -211,7 +229,8 @@ module.exports = {
                 }
                 return res.status(200).json({
                     success: 1,
-                    message: "Successfully update order"
+                    message: "Successfully update order",
+                    data: results
                 })
             });
         });
@@ -220,6 +239,28 @@ module.exports = {
         const id = req.user.id;
         const status = req.query.status?req.query.status:"";
         getOrderBySellerId(id, status, (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            if(!results){
+                return res.status(200).json({
+                    success: 0,
+                    message: "Record not found"
+                })
+            }
+            return res.status(200).json({
+                success: 1,
+                data: results
+            })
+        });
+    },
+    getOrderHistoryByOrderId: (req, res) => {
+        const id = req.query.id;
+        getOrderHistoryByOrderId(id, (err, results) => {
             if(err){
                 console.log(err);
                 return res.status(500).json({

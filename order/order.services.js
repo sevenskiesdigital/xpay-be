@@ -50,7 +50,6 @@ module.exports = {
                 if(error){
                     return callBack(error)
                 }
-                console.log(results);
                 return callBack(null, results)
             }
         );
@@ -59,16 +58,15 @@ module.exports = {
         pool.query(
             'UPDATE `order` set status=?, updated_by=? where status=? and (UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(created_at) >= ?)',
             [
-                data.previous_order_status,
-                data.updated_by,
                 data.next_order_status,
+                data.updated_by,
+                data.previous_order_status,
                 data.limit_time
             ],
             (error, results, fields) => {
                 if(error){
                     return callBack(error)
                 }
-                console.log(results);
                 return callBack(null, results)
             }
         );
@@ -80,6 +78,24 @@ module.exports = {
                 data.status,
                 data.updated_by,
                 data.order_id
+            ],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results)
+            }
+        );
+    },
+    createOrderHistory: (data, callBack) => {
+        pool.query(
+            'INSERT INTO `order_history`(`order_id`, `note`, `previous_status`, `current_status`, `created_by`) values(?,?,?,?,?)',
+            [
+                data.order_id,
+                data.note,
+                data.previous_status,
+                data.current_status,
+                data.created_by
             ],
             (error, results, fields) => {
                 if(error){
@@ -177,6 +193,17 @@ module.exports = {
                     return callBack(error)
                 }
                 return callBack(null, results[0])
+            }
+        );
+    },
+    getOrderHistoryByOrderId: (id, callBack) => {
+        pool.query('SELECT `id`, `order_id`, `previous_status`, `current_status`, `note`,  `created_at`, `created_by` FROM `order_history` WHERE order_id = ?',
+            [id],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results)
             }
         );
     }
