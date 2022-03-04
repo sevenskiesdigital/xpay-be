@@ -31,7 +31,9 @@ module.exports = {
                     console.log(err);
                     return res.status(500).json({
                         success: 0,
-                        message: "Send mail error"
+                        message: "Send mail error",
+                        otp: OTP,
+                        err: err
                     })
                 }
                 return res.status(200).json({
