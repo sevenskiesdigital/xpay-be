@@ -5,10 +5,13 @@ const userRouter = require("./user/user.router")
 const paymentRouter = require("./payment/payment.router")
 const orderRouter = require("./order/order.router")
 const payoutRouter = require("./payout/payout.router")
+const logger = require('./logger')
+var morgan = require('morgan');
 var cors = require('cors')
 
 app.use(cors())
 app.use(express.json());
+app.use(morgan('combined', { stream: logger.stream }));
 
 app.get("/api", (req, res)=>{
     res.json({
@@ -23,5 +26,5 @@ app.use("/order", orderRouter);
 app.use("/payout", payoutRouter);
 
 app.listen(process.env.PORT || process.env.APP_PORT, ()=>{
-    console.log("Server up and running on PORT: ", process.env.PORT || process.env.APP_PORT);
+    logger.info(message= "Server up and running on PORT: ", process.env.PORT || process.env.APP_PORT);
 })

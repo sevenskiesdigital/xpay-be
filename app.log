@@ -1,0 +1,19 @@
+{"level":"info","message":"Server up and running on PORT: "}
+${info.level} - ${info.message}
+info - Server up and running on PORT: 
+2022-03-04T00:20:49.640Z - info - Server up and running on PORT: 
+undefined
+{
+        timestamp: 2022-03-04T00:23:23.951Z,
+        level: info,
+        message: Server up and running on PORT: 
+    }
+{timestamp: 2022-03-04T00:24:08.675Z,level: info,message: Server up and running on PORT: }
+{timestamp: 2022-03-04T00:28:16.764Z,level: info,message: Server up and running on PORT: }
+{timestamp: 2022-03-04T02:04:37.277Z, level: info, message: Server up and running on PORT: }
+{timestamp: 2022-03-04T02:04:57.278Z, level: info, message: ::1 - - [04/Mar/2022:02:04:57 +0000] "POST /user/generateOtp HTTP/1.1" 200 64 "-" "PostmanRuntime/7.29.0"
+}
+{timestamp: 2022-03-04T07:03:23.604Z, level: info, message: Server up and running on PORT: }
+Server up and running on PORT: 
+::1 - - [04/Mar/2022:07:11:18 +0000] "POST /user/generateOtp HTTP/1.1" 200 64 "-" "PostmanRuntime/7.29.0"
+
