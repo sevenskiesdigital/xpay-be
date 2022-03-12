@@ -1,6 +1,22 @@
 const pool = require("../config/database");
 const request = require("request");
 const nodemailer = require('nodemailer');
+const { reject } = require("bcrypt/promises");
+
+function getUserByUserEmail2(email){
+    const promiseToken = new Promise((resolve, reject) => {
+        pool.query('select id, pin, email, phone_number, first_name, last_name from user where email = ?',
+        [email],
+        (error, results, fields) => {
+            if(error){
+                reject(error)
+            }
+            resolve(results[0])
+            }
+        );
+    })    
+    return promiseToken;
+}
 
 module.exports = {
     createUser: (data, callBack) => {
@@ -40,6 +56,7 @@ module.exports = {
             }
         );
     },
+    getUserByUserEmail2: getUserByUserEmail2,
     getUserByUserEmail: (email, callBack) => {
         pool.query('select id, pin, email, phone_number, first_name, last_name from user where email = ?',
             [email],

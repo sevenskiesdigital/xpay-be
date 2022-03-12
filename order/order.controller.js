@@ -1,4 +1,5 @@
 const { createOrder, getOrderBySellerId, getOrderByBuyerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder, statusOrder, createOrderHistory, getOrderHistoryByOrderId } = require("./order.services");
+const { getUserByUserEmail2 } = require("../user/user.services");
 const { sign } = require("jsonwebtoken");
 const midtransClient = require('midtrans-client');
 
@@ -24,68 +25,72 @@ module.exports = {
     createOrder: (req, res) => {
         const body = req.body;
         const code = randomString(5, '#aA');
-        var order = {
-            "seller_id": req.user.id,
-            "buyer_id": body.buyer_id,
-            "product_name": body.product_name,
-            "note": body.note,
-            "amount": body.amount,
-            "payment_code": code,
-            "expired_buyer_time": body.expired_buyer_time,
-            "status": 'waiting_payment',
-            "created_by": req.user.id,
-            "updated_by": req.user.id
-        }
-        createOrder(order, (err,results) => {
-            if(err){
-                console.log(err);
-                return res.status(500).json({
-                    success: 0,
-                    message: "Database connection error"
-                })
-            }            
-            
-            getOrderByCode(code, (err, results) => {
-                if(err){
-                    console.log(err);
-                    return res.status(500).json({
-                        success: 0,
-                        message: "Database connection error"
-                    })
+        getUserByUserEmail2(body.buyer_email).then(
+            response => {
+                var order = {
+                    "seller_id": req.user.id,
+                    "buyer_id": response.id,
+                    "product_name": body.product_name,
+                    "note": body.note,
+                    "amount": body.amount,
+                    "payment_code": code,
+                    "expired_buyer_time": body.expired_buyer_time,
+                    "status": 'waiting_payment',
+                    "created_by": req.user.id,
+                    "updated_by": req.user.id
                 }
-                if(!results){
-                    return res.status(200).json({
-                        success: 0,
-                        message: "Record not found"
-                    })
-                }
-                var order_history = {
-                    "order_id": results.id,
-                    "previous_status": '',
-                    "current_status": results.status,
-                    "note": '',
-                    "created_by": req.user.id
-                }
-                createOrderHistory(order_history, (err, results) => {
+                createOrder(order, (err,results) => {
                     if(err){
                         console.log(err);
                         return res.status(500).json({
                             success: 0,
                             message: "Database connection error"
                         })
-                    }
-                    return res.status(200).json({
+                    }            
+                    
+                    getOrderByCode(code, (err, results) => {
+                        if(err){
+                            console.log(err);
+                            return res.status(500).json({
+                                success: 0,
+                                message: "Database connection error"
+                            })
+                        }
+                        if(!results){
+                            return res.status(200).json({
+                                success: 0,
+                                message: "Record not found"
+                            })
+                        }
+                        var order_history = {
+                            "order_id": results.id,
+                            "previous_status": '',
+                            "current_status": results.status,
+                            "note": '',
+                            "created_by": req.user.id
+                        }
+                        createOrderHistory(order_history, (err, results) => {
+                            if(err){
+                                console.log(err);
+                                return res.status(500).json({
+                                    success: 0,
+                                    message: "Database connection error"
+                                })
+                            }
+                            return res.status(200).json({
+                                success: 1,
+                                message: "Successfully insert order",
+                                data: results
+                            })
+                        });
+                    });
+                    /*return res.status(200).json({
                         success: 1,
-                        message: "Successfully insert order",
-                        data: results
-                    })
+                        message: "Successfully insert order"
+                    })*/
                 });
-            });
-            /*return res.status(200).json({
-                success: 1,
-                message: "Successfully insert order"
-            })*/
-        });
+            }
+        )    
     },
     uploadImage: (req, res) => {
         const body = req.body;
