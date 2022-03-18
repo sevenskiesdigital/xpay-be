@@ -45,6 +45,17 @@ module.exports = {
             }
         );
     },
+    getFee: (type, callBack) => {
+        pool.query('SELECT `id`, `name`, `type`, `method`, `percentage`, `amount`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `fee` WHERE type = ? and is_active=1',
+            [type],
+            (error, results, fields) => {
+                if(error){
+                    return callBack(error)
+                }
+                return callBack(null, results)
+            }
+        );
+    },
     getPaymentByCode: (code, callBack) => {
         pool.query('SELECT `id`, `code`, `token`, `redirect_url`, `status`, `is_active`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `payment` WHERE code = ?',
             [code],

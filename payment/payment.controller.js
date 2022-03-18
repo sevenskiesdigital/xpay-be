@@ -1,4 +1,4 @@
-const { snap, createPayment, updatePaymentByCode } = require("./payment.services");
+const { snap, createPayment, updatePaymentByCode, getFee } = require("./payment.services");
 
 function randomString(length, chars) {
     var mask = '';
@@ -12,6 +12,38 @@ function randomString(length, chars) {
 }
 
 module.exports = {
+    paymentFee: (req, res) => {
+        const body = req.body;
+        getFee('payment', (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    success: 0,
+                    message: "Database connection error"
+                })
+            }
+            var paymentFees = [];
+            results.forEach(fee => {
+                var amount;
+                console.log(fee);
+                if(fee.method == 'amount'){
+                    amount = fee.amount;
+                } else {
+                    amount = fee.percentage * body.amount / 100;
+                }
+                var paymentFee = {
+                    "name": fee.name,
+                    "amount": amount
+                }
+                paymentFees.push(paymentFee);
+            });
+            return res.status(200).json({
+                success: 1,
+                message: "Successfully get payment fee",
+                data: paymentFees
+            })
+        });
+    },
     snap: (req, res) => {
         const body = req.body;
         var data = {

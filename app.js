@@ -5,9 +5,42 @@ const userRouter = require("./user/user.router")
 const paymentRouter = require("./payment/payment.router")
 const orderRouter = require("./order/order.router")
 const payoutRouter = require("./payout/payout.router")
+const { statusOrder } = require("./order/order.services");
 const logger = require('./logger')
 var morgan = require('morgan');
-var cors = require('cors')
+var cors = require('cors');
+
+const schedule = require('node-schedule');
+/* const someDate = new Date('2022-03-13T09:00:00.000+4:00');
+schedule.scheduleJob(someDate, () => {
+    console.log('Job ran at', new Date().toString());
+});*/
+
+var timer = '*/1 * * * *';
+/*schedule.scheduleJob(timer, () => {
+    console.log('Job ran at', new Date().toString());
+    
+    const body = {
+        "previous_order_status": "waiting_payment",
+        "next_order_status": "waiting_shipping",
+        "limit_time": 1
+    }
+    body.updated_by = 'SCHEDULER'
+    statusOrder(body, (err, results) => {
+        if(err){
+            console.log({
+                success: 0,
+                message: "Database connection error",
+                data: err
+            })
+        }
+        console.log({
+            success: 1,
+            message: "Successfully update order",
+            data: results
+        })
+    });
+});*/
 
 app.use(cors())
 app.use(express.json());
