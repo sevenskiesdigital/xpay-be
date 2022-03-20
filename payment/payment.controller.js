@@ -1,4 +1,5 @@
-const { snap, createPayment, updatePaymentByCode, getFee } = require("./payment.services");
+const { snap, createPayment, updatePaymentByCode } = require("./payment.services");
+const { getFee } = require("../fee/fee.services");
 
 function randomString(length, chars) {
     var mask = '';
@@ -25,7 +26,6 @@ module.exports = {
             var paymentFees = [];
             results.forEach(fee => {
                 var amount;
-                console.log(fee);
                 if(fee.method == 'amount'){
                     amount = fee.amount;
                 } else {

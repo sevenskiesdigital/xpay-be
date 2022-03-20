@@ -1,5 +1,6 @@
 const { createOrder, getOrderBySellerId, getOrderByBuyerId, getOrderByCode, getOrderById, uploadImage, shipOrder, paymentReceived, finishOrder, statusOrder, createOrderHistory, getOrderHistoryByOrderId } = require("./order.services");
 const { getUserByUserEmail2 } = require("../user/user.services");
+const { getFee, createOrderFee, getOrderFee } = require("../fee/fee.services");
 const { sign } = require("jsonwebtoken");
 const midtransClient = require('midtrans-client');
 
@@ -39,7 +40,7 @@ module.exports = {
                     "created_by": req.user.id,
                     "updated_by": req.user.id
                 }
-                createOrder(order, (err,results) => {
+                createOrder(order, (err,results1) => {
                     if(err){
                         console.log(err);
                         return res.status(500).json({
@@ -48,7 +49,7 @@ module.exports = {
                         })
                     }            
                     
-                    getOrderByCode(code, (err, results) => {
+                    getOrderByCode(code, (err, results2) => {
                         if(err){
                             console.log(err);
                             return res.status(500).json({
@@ -56,16 +57,16 @@ module.exports = {
                                 message: "Database connection error"
                             })
                         }
-                        if(!results){
+                        if(!results2){
                             return res.status(200).json({
                                 success: 0,
                                 message: "Record not found"
                             })
                         }
                         var order_history = {
-                            "order_id": results.id,
+                            "order_id": results2.id,
                             "previous_status": '',
-                            "current_status": results.status,
+                            "current_status": results2.status,
                             "note": '',
                             "created_by": req.user.id
                         }
@@ -77,11 +78,49 @@ module.exports = {
                                     message: "Database connection error"
                                 })
                             }
-                            return res.status(200).json({
-                                success: 1,
-                                message: "Successfully insert order",
-                                data: results
-                            })
+                            getFee('payment', (err, results) => {
+                                if(err){
+                                    console.log(err);
+                                    return res.status(500).json({
+                                        success: 0,
+                                        message: "Database connection error"
+                                    })
+                                }
+                                results2.fee = []
+                                results.forEach(fee => {
+                                    var amount;
+                                    if(fee.method == 'amount'){
+                                        amount = fee.amount;
+                                    } else {
+                                        amount = fee.percentage * body.amount / 100;
+                                    }
+                                    var paymentFee = {
+                                        "order_id": results2.id,
+                                        "order_code": code,
+                                        "fee_id": fee.id,
+                                        "name": fee.name,
+                                        "amount": amount,
+                                        "created_by": req.user.id,
+                                        "updated_by": req.user.id
+                                    }
+                                    results2.fee.push(paymentFee);
+                                    createOrderFee(paymentFee, (err, results) => {
+                                        console.log(paymentFee);
+                                        if(err){
+                                            console.log(err);
+                                            return res.status(500).json({
+                                                success: 0,
+                                                message: "Database connection error"
+                                            })
+                                        }
+                                    });
+                                });
+                                return res.status(200).json({
+                                    success: 1,
+                                    message: "Successfully insert order",
+                                    data: results2
+                                })
+                            });
                         });
                     });
                     /*return res.status(200).json({
@@ -324,40 +363,42 @@ module.exports = {
                     message: "Record not found"
                 })
             }
-            snap.transaction.status(code)
-            .then((response)=>{
-                results.payment = response;
-                if(response.transaction_status == "capture" || response.transaction_status == "settlement"){
-                    if(results.status == "waiting_payment"){
-                        results.status = "waiting_shipping";
-                        var order = {
-                            "order_id": results.id,
-                            "status": 'waiting_shipping',
-                            "updated_by": results.buyer_id
-                        }
-                        paymentReceived(order, (err, results) => {
-                        });
-                    }
+            getOrderFee(code, (err, results2) => {
+                if(err){
+                    console.log(err);
+                    return res.status(500).json({
+                        success: 0,
+                        message: "Database connection error"
+                    })
                 }
-                const jsontoken = sign({result: results}, process.env.JWT_KEY, {
-                    expiresIn: process.env.JWT_EXPIRED
-                });
-                return res.status(200).json({
-                    success: 1,
-                    data: results,
-                    token: jsontoken
+                results.fee = results2;
+                snap.transaction.status(code)
+                .then((response)=>{
+                    results.payment = response;
+                    if(response.transaction_status == "capture" || response.transaction_status == "settlement"){
+                        if(results.status == "waiting_payment"){
+                            results.status = "waiting_shipping";
+                            var order = {
+                                "order_id": results.id,
+                                "status": 'waiting_shipping',
+                                "updated_by": results.buyer_id
+                            }
+                            paymentReceived(order, (err, results) => {
+                            });
+                        }
+                    }
+                    return res.status(200).json({
+                        success: 1,
+                        data: results
+                    })
+                }).catch((error) => {
+                    results.payment = error.ApiResponse;
+                    return res.status(200).json({
+                        success: 1,
+                        data: results,
+                    })
                 })
-            }).catch((error) => {
-                results.payment = error.ApiResponse;
-                const jsontoken = sign({result: results}, process.env.JWT_KEY, {
-                    expiresIn: process.env.JWT_EXPIRED
-                });
-                return res.status(200).json({
-                    success: 1,
-                    data: results,
-                    token: jsontoken
-                })
-            })
+            });            
         });
     }
 }

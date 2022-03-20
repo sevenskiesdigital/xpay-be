@@ -130,7 +130,7 @@ module.exports = {
     },
     getOrderByBuyerId: (id, status, callBack) => {
         if(status==""){
-            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` WHERE buyer_id = ?',
+            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`,  `order`.`amount` as  `amount`, `order_fee`.amount as  `fee`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` left join (select `order_id`, sum(amount) as `amount` from `order_fee` group by `order_id`) as `order_fee` on `order_fee`.`order_id` = `order`.id WHERE buyer_id = ?',
                 [id],
                 (error, results, fields) => {
                     if(error){
@@ -140,7 +140,7 @@ module.exports = {
                 }
             );
         }else{
-            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` WHERE buyer_id = ? AND status = ?',
+            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`,  `order`.`amount` as  `amount`, `order_fee`.amount as  `fee`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` left join (select `order_id`, sum(amount) as `amount` from `order_fee` group by `order_id`) as `order_fee` on `order_fee`.`order_id` = `order`.id WHERE buyer_id = ? and status = ?',
                 [id, status],
                 (error, results, fields) => {
                     if(error){
@@ -153,7 +153,7 @@ module.exports = {
     },
     getOrderBySellerId: (id, status, callBack) => {
         if(status==""){
-            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` WHERE seller_id = ?',
+            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`,  `order`.`amount` as  `amount`, `order_fee`.amount as  `fee`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` left join (select `order_id`, sum(amount) as `amount` from `order_fee` group by `order_id`) as `order_fee` on `order_fee`.`order_id` = `order`.id WHERE seller_id = ?',
                 [id],
                 (error, results, fields) => {
                     if(error){
@@ -163,7 +163,7 @@ module.exports = {
                 }
             );
         }else{
-            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`, `amount`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` WHERE seller_id = ? AND status = ?',
+            pool.query('SELECT `id`, `seller_id`, `buyer_id`, `product_name`, `note`,  `order`.`amount` as  `amount`, `order_fee`.amount as  `fee`, `payment_code`, `expired_buyer_time`, `expired_seller_time`, `status`, `created_at`, `created_by`, `updated_at`, `updated_by` FROM `order` left join (select `order_id`, sum(amount) as `amount` from `order_fee` group by `order_id`) as `order_fee` on `order_fee`.`order_id` = `order`.id WHERE seller_id = ? AND status = ?',
                 [id, status],
                 (error, results, fields) => {
                     if(error){
