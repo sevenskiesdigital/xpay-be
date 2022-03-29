@@ -9,7 +9,7 @@ const { statusOrder } = require("./order/order.services");
 const logger = require('./logger')
 var morgan = require('morgan');
 var cors = require('cors');
-
+const swaggerUi = require('swagger-ui-express');
 const schedule = require('node-schedule');
 /* const someDate = new Date('2022-03-13T09:00:00.000+4:00');
 schedule.scheduleJob(someDate, () => {
@@ -42,9 +42,12 @@ var timer = '*/1 * * * *';
     });
 });*/
 
+const { swaggerDocument } = require("./swagger");
+
 app.use(cors())
 app.use(express.json());
 app.use(morgan('combined', { stream: logger.stream }));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/api", (req, res)=>{
     res.json({

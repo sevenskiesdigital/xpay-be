@@ -4,7 +4,7 @@ const midtransClient = require('midtrans-client');
 let iris = new midtransClient.Iris({
         // Set to true if you want Production Environment (accept real transaction).
         isProduction : false,
-        serverKey : 'SB-Mid-server-qug5i26hvYpNpdZDXxk735ko'
+        serverKey : process.env.MIDTRANS_SERVER_KEY
     });
 
 
