@@ -33,10 +33,9 @@ module.exports = {
                 "beneficiary_account": body.beneficiary_account,
                 "beneficiary_bank": body.beneficiary_bank,
                 "beneficiary_email": req.user.email,
-                "amount": amount,
+                "amount": ""+amount,
                 "notes": body.notes,
-                "created_by": id
-              }      
+              }     
             payout(data_payout, (err, results) => {
                 if(err){
                     console.log(err.ApiResponse);
